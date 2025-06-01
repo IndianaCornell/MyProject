@@ -1,10 +1,14 @@
 import React from 'react';
 import {StyleSheet, Text, TouchableOpacity} from 'react-native';
 
-const CustomButton: React.FC = () => {
+type ButtonProps = {
+  title: string;
+};
+
+const CustomButton: React.FC<ButtonProps> = ({title}) => {
   return (
     <TouchableOpacity style={styles.button}>
-      <Text style={styles.buttonText}>Мої smart-пристрої</Text>
+      <Text style={styles.buttonText}>{title}</Text>
     </TouchableOpacity>
   );
 };

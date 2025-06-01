@@ -4,11 +4,15 @@ import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import BatteryIcon from '../assets/battery.svg';
 import NotificationIcon from '../assets/notification.svg';
 
-const HeaderBar = () => {
+type HeaderBarProps = {
+  title: string;
+};
+
+const HeaderBar: React.FC<HeaderBarProps> = ({title}) => {
   return (
     <View style={styles.container}>
       <View style={styles.leftSection}>
-        <Text style={styles.title}>Цезар</Text>
+        <Text style={styles.title}>{title}</Text>
         <BatteryIcon width={40} height={40} />
       </View>
       <TouchableOpacity>

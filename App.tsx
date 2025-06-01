@@ -3,14 +3,22 @@ import {SafeAreaView, StyleSheet, View} from 'react-native';
 import CustomButton from './components/CustomButton';
 import HeaderBar from './components/HeaderBar';
 import FooterBar from './components/FooterBar';
+import ServiceBar from './components/ServiceBar';
+import HistoryBar from './components/HistoryBar';
 
 function App(): React.JSX.Element {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.box}>
-        <HeaderBar />
-        <CustomButton />
+        <HeaderBar title="Цезар" />
+        <CustomButton title="Мої smart-пристрої" />
         <FooterBar />
+        <ServiceBar title="Очищення фільтра" description="Стан чудовий" />
+        <HistoryBar
+          title="Сухе/вологе прибирання"
+          description="Прибрано усі приміщення."
+          date="03/09/25"
+        />
       </View>
     </SafeAreaView>
   );
