@@ -1,45 +1,70 @@
 import React from 'react';
-import {SafeAreaView, StyleSheet, View} from 'react-native';
-import CustomButton from './components/CustomButton';
-import HeaderBar from './components/HeaderBar';
-import FooterBar from './components/FooterBar';
-import ServiceBar from './components/ServiceBar';
-import HistoryBar from './components/HistoryBar';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {NavigationContainer} from '@react-navigation/native';
+
+import HeaderBar from './components/HeaderHomeBar';
+import HeaderServiceBar from './components/HeaderServiceBar';
+import HeaderHistoryBar from './components/HeaderHistoryBar';
+
+import Home from './screens/Home';
+import Service from './screens/Service';
+import Setting from './screens/Settings';
+
+import SettingsIcon from './assets/settings.svg';
+import HomeIcon from './assets/home.svg';
+import ServiceIcon from './assets/service.svg';
+import Calendar from './assets/calendar.svg';
+import CleaningHistory from './screens/CleaningHistory';
+
+const Tab = createBottomTabNavigator();
 
 function App(): React.JSX.Element {
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.box}>
-        <HeaderBar title="Цезар" />
-        <CustomButton title="Мої smart-пристрої" />
-        <FooterBar />
-        <ServiceBar title="Очищення фільтра" description="Стан чудовий" />
-        <HistoryBar
-          title="Сухе/вологе прибирання"
-          description="Прибрано усі приміщення."
-          date="03/09/25"
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={{
+          tabBarShowLabel: false,
+          tabBarStyle: {
+            height: 90,
+            paddingTop: 10,
+            backgroundColor: '#FAF1E6',
+          },
+        }}>
+        <Tab.Screen
+          name="Service"
+          component={Service}
+          options={{
+            header: () => <HeaderServiceBar title="Цезар" />,
+            tabBarIcon: () => <ServiceIcon width={40} height={40} />,
+          }}
         />
-      </View>
-    </SafeAreaView>
+        <Tab.Screen
+          name="Home"
+          component={Home}
+          options={{
+            header: () => <HeaderBar title="Цезар" />,
+            tabBarIcon: () => <HomeIcon width={40} height={40} />,
+          }}
+        />
+        <Tab.Screen
+          name="Settings"
+          component={Setting}
+          options={{
+            header: () => <HeaderBar title="Цезар" />,
+            tabBarIcon: () => <SettingsIcon width={40} height={40} />,
+          }}
+        />
+        <Tab.Screen
+          name="CleaningHistory"
+          component={CleaningHistory}
+          options={{
+            header: () => <HeaderHistoryBar title="Цезар" />,
+            tabBarIcon: () => <Calendar width={40} height={40} />,
+          }}
+        />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  box: {
-    padding: 24,
-    gap: 20,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-});
 
 export default App;
