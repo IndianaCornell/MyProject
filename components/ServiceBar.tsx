@@ -1,15 +1,19 @@
 import React from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 
-import FilterIcon from '../assets/filter.svg';
-import DoneIcon from '../assets/done.svg';
+import SvgFromUrl from './SvgFromUrl';
 
 type ServiceBarProps = {
   title: string;
   description: string;
 };
 
-const ServiceBar: React.FC<ServiceBarProps> = ({title, description}) => {
+const ServiceBar: React.FC<ServiceBarProps> = ({
+  title,
+  description,
+  status,
+  icon,
+}) => {
   return (
     <View style={styles.container}>
       <View style={styles.description_container}>
@@ -17,9 +21,9 @@ const ServiceBar: React.FC<ServiceBarProps> = ({title, description}) => {
           <Text style={styles.description_title}>{title}</Text>
           <Text style={styles.description_text}>{description}</Text>
         </View>
-        <FilterIcon width={40} height={40} />
+        <SvgFromUrl uri={icon} width={40} height={40} />
       </View>
-      <DoneIcon width={40} height={40} />
+      <SvgFromUrl uri={status} width={40} height={40} />
     </View>
   );
 };

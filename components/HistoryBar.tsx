@@ -1,19 +1,27 @@
 import React from 'react';
 import {StyleSheet, View, Text} from 'react-native';
+import SvgFromUrl from './SvgFromUrl';
 
 type HistoryBarProps = {
   title: string;
   description: string;
   date: string;
+  icon: string;
 };
 
-const HistoryBar: React.FC<HistoryBarProps> = ({title, description, date}) => {
+const HistoryBar: React.FC<HistoryBarProps> = ({
+  title,
+  description,
+  date,
+  icon,
+}) => {
   return (
     <View style={styles.container}>
       <View style={styles.description}>
         <Text style={styles.description_title}>{title}</Text>
         <Text style={styles.description_text}>{description}</Text>
       </View>
+      <SvgFromUrl uri={icon} width={50} height={50} />
       <Text style={styles.description_text}>{date}</Text>
     </View>
   );
