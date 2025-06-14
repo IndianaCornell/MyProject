@@ -1,31 +1,47 @@
-import React, {useEffect, useState} from 'react';
-import {View, FlatList, StyleSheet, Text} from 'react-native';
-import {getServices} from '../api/api';
-import SvgFromUrl from '../components/SvgFromUrl';
+import React, {useContext, useEffect} from 'react';
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  Text,
+  ActivityIndicator,
+} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {fetchServices} from '../slices/serviceSlice';
+import {ThemeContext} from '../App';
 import ServiceBar from '../components/ServiceBar';
+import {RootState, AppDispatch} from '../store';
 
 const Service: React.FC = () => {
-  const [services, setServices] = useState([]);
-  const [error, setError] = useState(false);
+  const {theme} = useContext(ThemeContext);
+  const dispatch = useDispatch<AppDispatch>();
+  const {
+    list: services,
+    isLoading,
+    error,
+  } = useSelector((state: RootState) => state.services);
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const data = await getServices();
-        setServices(data);
-      } catch (e) {
-        console.error(e);
-        setError(true);
-      }
-    };
+    dispatch(fetchServices());
+  }, [dispatch]);
 
-    load();
-  }, []);
+  const styles = getStyles(theme);
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator
+          size="large"
+          color={theme === 'light' ? '#000' : '#fff'}
+        />
+      </View>
+    );
+  }
 
   if (error) {
     return (
       <View style={styles.container}>
-        <Text>Не вдалося завантажити сервісні дані</Text>
+        <Text style={styles.text}>Не вдалося завантажити сервісні дані</Text>
       </View>
     );
   }
@@ -37,27 +53,34 @@ const Service: React.FC = () => {
       keyExtractor={item => item.id.toString()}
       renderItem={({item}) => (
         <View style={styles.item}>
-          <View style={styles.textContainer}>
-            <ServiceBar
-              title={item.title}
-              description={item.description}
-              status={item.status}
-              icon={item.icon}
-            />
-          </View>
+          <ServiceBar
+            title={item.title}
+            description={item.description}
+            status={item.status}
+            icon={item.icon}
+          />
         </View>
       )}
     />
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    gap: 20,
-    padding: 20,
-    flex: 1,
-    backgroundColor: '#FDFAF6',
-  },
-});
+const getStyles = (theme: string) =>
+  StyleSheet.create({
+    container: {
+      gap: 20,
+      padding: 20,
+      flex: 1,
+      backgroundColor: theme === 'light' ? '#fff' : '#222',
+    },
+    text: {
+      color: theme === 'light' ? '#000' : '#fff',
+    },
+    item: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+  });
 
 export default Service;

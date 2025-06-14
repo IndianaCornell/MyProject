@@ -1,31 +1,48 @@
-import React, {useEffect, useState} from 'react';
-import {View, FlatList, StyleSheet, Text} from 'react-native';
-import {getHistory} from '../api/api';
+import React, {useContext, useEffect} from 'react';
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  Text,
+  ActivityIndicator,
+} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {fetchHistory} from '../slices/historySlice';
+import {ThemeContext} from '../App';
 import HistoryBar from '../components/HistoryBar';
+import {RootState, AppDispatch} from '../store';
 
-type CleaningHistoryProps = {};
+const CleaningHistory: React.FC = () => {
+  const {theme} = useContext(ThemeContext);
+  const dispatch = useDispatch<AppDispatch>();
 
-const CleaningHistory: React.FC<CleaningHistoryProps> = ({}) => {
-  const [history, setHistory] = useState([]);
-  const [error, setError] = useState(false);
+  const {
+    list: history,
+    isLoading,
+    error,
+  } = useSelector((state: RootState) => state.history);
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const data = await getHistory();
-        setHistory(data);
-      } catch (e) {
-        console.error(e);
-        setError(true);
-      }
-    };
-    load();
-  }, []);
+    dispatch(fetchHistory());
+  }, [dispatch]);
+
+  const styles = getStyles(theme);
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator
+          size="large"
+          color={theme === 'light' ? '#000' : '#fff'}
+        />
+      </View>
+    );
+  }
 
   if (error) {
     return (
       <View style={styles.container}>
-        <Text>Не вдалося завантажити історію</Text>
+        <Text style={styles.text}>Не вдалося завантажити історію</Text>
       </View>
     );
   }
@@ -48,18 +65,23 @@ const CleaningHistory: React.FC<CleaningHistoryProps> = ({}) => {
     />
   );
 };
-export default CleaningHistory;
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    gap: 20,
-    padding: 24,
-    backgroundColor: '#fff',
-  },
-  list: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-});
+const getStyles = (theme: string) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      gap: 20,
+      padding: 24,
+      backgroundColor: theme === 'light' ? '#fff' : '#222',
+    },
+    text: {
+      color: theme === 'light' ? '#000' : '#fff',
+    },
+    list: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+  });
+
+export default CleaningHistory;

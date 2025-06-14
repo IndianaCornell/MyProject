@@ -1,70 +1,38 @@
-import React from 'react';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {NavigationContainer} from '@react-navigation/native';
+import React, {createContext, useState} from 'react';
+import {StyleSheet, View} from 'react-native';
+import Navigation from './navigation/Navigation';
+import ThemedStatusBar from './components/ThemedStatusBar';
+import {Provider} from 'react-redux';
+import {store} from './store';
 
-import HeaderBar from './components/HeaderHomeBar';
-import HeaderServiceBar from './components/HeaderServiceBar';
-import HeaderHistoryBar from './components/HeaderHistoryBar';
-
-import Home from './screens/Home';
-import Service from './screens/Service';
-import Setting from './screens/Settings';
-
-import SettingsIcon from './assets/settings.svg';
-import HomeIcon from './assets/home.svg';
-import ServiceIcon from './assets/service.svg';
-import Calendar from './assets/calendar.svg';
-import CleaningHistory from './screens/CleaningHistory';
-
-const Tab = createBottomTabNavigator();
+export const ThemeContext = createContext();
 
 function App(): React.JSX.Element {
+  const [theme, setTheme] = useState('light');
+  const themeStyles = theme === 'light' ? styles.light : styles.dark;
+
   return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={{
-          tabBarShowLabel: false,
-          tabBarStyle: {
-            height: 90,
-            paddingTop: 10,
-            backgroundColor: '#FAF1E6',
-          },
-        }}>
-        <Tab.Screen
-          name="Service"
-          component={Service}
-          options={{
-            header: () => <HeaderServiceBar title="Цезар" />,
-            tabBarIcon: () => <ServiceIcon width={40} height={40} />,
-          }}
-        />
-        <Tab.Screen
-          name="Home"
-          component={Home}
-          options={{
-            header: () => <HeaderBar title="Цезар" />,
-            tabBarIcon: () => <HomeIcon width={40} height={40} />,
-          }}
-        />
-        <Tab.Screen
-          name="Settings"
-          component={Setting}
-          options={{
-            header: () => <HeaderBar title="Цезар" />,
-            tabBarIcon: () => <SettingsIcon width={40} height={40} />,
-          }}
-        />
-        <Tab.Screen
-          name="CleaningHistory"
-          component={CleaningHistory}
-          options={{
-            header: () => <HeaderHistoryBar title="Цезар" />,
-            tabBarIcon: () => <Calendar width={40} height={40} />,
-          }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <ThemeContext.Provider value={{theme, setTheme}}>
+        <View style={[styles.container, themeStyles]}>
+          <ThemedStatusBar />
+          <Navigation />
+        </View>
+      </ThemeContext.Provider>
+    </Provider>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  light: {
+    backgroundColor: '#fff',
+  },
+  dark: {
+    backgroundColor: '#333',
+  },
+});
 
 export default App;
