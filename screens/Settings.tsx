@@ -1,48 +1,64 @@
-import {View, StyleSheet} from 'react-native';
+import React, {useContext, useEffect} from 'react';
+import {StyleSheet, View} from 'react-native';
 import CustomButton from '../components/CustomButton';
-import React, {useContext} from 'react';
 import {ThemeContext} from '../App';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolateColor,
+} from 'react-native-reanimated';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../navigation/types';
 
 const Setting: React.FC = () => {
   const {theme, setTheme} = useContext(ThemeContext);
+  const progress = useSharedValue(theme === 'dark' ? 1 : 0);
+
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  useEffect(() => {
+    progress.value = withTiming(theme === 'dark' ? 1 : 0, {duration: 400});
+  }, [theme]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      progress.value,
+      [0, 1],
+      ['#FDFAF6', '#222'],
+    ),
+    flex: 1,
+    padding: 20,
+    justifyContent: 'space-between',
+  }));
 
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
-  const styles = getStyles(theme);
-
   return (
-    <View style={styles.container}>
-      <View style={styles.userSettings}>
+    <Animated.View style={animatedStyle}>
+      <View style={{gap: 20}}>
         <CustomButton title={'Мої Smart-пристрої'} />
-        <CustomButton title={'Обслуговування'} />
-        <CustomButton title={'Історія прибирань'} />
+        <CustomButton
+          title={'Обслуговування'}
+          onPress={() => navigation.navigate('Service')}
+        />
+        <CustomButton
+          title={'Історія прибирань'}
+          onPress={() => navigation.navigate('CleaningHistory')}
+        />
         <CustomButton title={'Змінити тему застосунку'} onPress={toggleTheme} />
         <CustomButton title={'Особисті дані'} />
       </View>
-      <View style={styles.suppCall}>
+      <View style={{gap: 20}}>
         <CustomButton title={'Звернення до підтримки'} />
         <CustomButton title={'Вийти з портфоліо'} />
       </View>
-    </View>
+    </Animated.View>
   );
 };
-
-const getStyles = (theme: string) =>
-  StyleSheet.create({
-    container: {
-      padding: 20,
-      justifyContent: 'space-between',
-      flex: 1,
-      backgroundColor: theme === 'light' ? '#FDFAF6' : '#222',
-    },
-    userSettings: {
-      gap: 20,
-    },
-    suppCall: {
-      gap: 20,
-    },
-  });
 
 export default Setting;

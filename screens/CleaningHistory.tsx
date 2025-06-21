@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useMemo, useCallback} from 'react';
 import {
   View,
   FlatList,
@@ -6,11 +6,19 @@ import {
   Text,
   ActivityIndicator,
 } from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch, useSelector, shallowEqual} from 'react-redux';
 import {fetchHistory} from '../slices/historySlice';
 import {ThemeContext} from '../App';
 import HistoryBar from '../components/HistoryBar';
 import {RootState, AppDispatch} from '../store';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolateColor,
+} from 'react-native-reanimated';
+
+const MemoizedHistoryBar = React.memo(HistoryBar);
 
 const CleaningHistory: React.FC = () => {
   const {theme} = useContext(ThemeContext);
@@ -20,60 +28,72 @@ const CleaningHistory: React.FC = () => {
     list: history,
     isLoading,
     error,
-  } = useSelector((state: RootState) => state.history);
+  } = useSelector((state: RootState) => state.history, shallowEqual);
 
   useEffect(() => {
     dispatch(fetchHistory());
   }, [dispatch]);
 
-  const styles = getStyles(theme);
+  const progress = useSharedValue(theme === 'dark' ? 1 : 0);
+
+  useEffect(() => {
+    progress.value = withTiming(theme === 'dark' ? 1 : 0, {duration: 400});
+  }, [theme]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(progress.value, [0, 1], ['#fff', '#222']),
+    flex: 1,
+    padding: 24,
+  }));
+
+  const styles = useMemo(() => getStyles(theme), [theme]);
+
+  const renderItem = useCallback(
+    ({item}: any) => (
+      <View style={styles.list}>
+        <MemoizedHistoryBar
+          title={item.title}
+          description={item.description}
+          date={item.date}
+          icon={item.icon}
+        />
+      </View>
+    ),
+    [styles.list],
+  );
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
+      <Animated.View style={animatedStyle}>
         <ActivityIndicator
           size="large"
           color={theme === 'light' ? '#000' : '#fff'}
         />
-      </View>
+      </Animated.View>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.container}>
+      <Animated.View style={animatedStyle}>
         <Text style={styles.text}>Не вдалося завантажити історію</Text>
-      </View>
+      </Animated.View>
     );
   }
 
   return (
-    <FlatList
-      contentContainerStyle={styles.container}
+    <Animated.FlatList
+      contentContainerStyle={{gap: 20}}
+      style={animatedStyle}
       data={history}
       keyExtractor={item => item.id.toString()}
-      renderItem={({item}) => (
-        <View style={styles.list}>
-          <HistoryBar
-            title={item.title}
-            description={item.description}
-            date={item.date}
-            icon={item.icon}
-          />
-        </View>
-      )}
+      renderItem={renderItem}
     />
   );
 };
 
 const getStyles = (theme: string) =>
   StyleSheet.create({
-    container: {
-      flex: 1,
-      gap: 20,
-      padding: 24,
-      backgroundColor: theme === 'light' ? '#fff' : '#222',
-    },
     text: {
       color: theme === 'light' ? '#000' : '#fff',
     },

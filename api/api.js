@@ -43,13 +43,3 @@ export const getHistory = async () => {
     throw error;
   }
 };
-
-export const getDb = async () => {
-  try {
-    const res = await instance.get('/db');
-    return res.data;
-  } catch (error) {
-    console.error('Error in getDb():', error);
-    throw error;
-  }
-};
